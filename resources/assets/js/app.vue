@@ -212,7 +212,9 @@ export default {
       async logout () {
         await userStore.logout()
         ls.remove('jwt-token')
-        forceReloadWindow()
+        window.onbeforeunload = function() {};
+        // Because there is no token and ours is removed, this will trigger calling the remote logout URL redirection
+        window.location.replace('/loginRedir.php');
       },
 
       /**
