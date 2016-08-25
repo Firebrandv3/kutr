@@ -2,7 +2,7 @@ import isMobile from 'ismobilejs'
 import { each } from 'lodash'
 
 import { loadMainView } from './utils'
-import { artistStore, albumStore, songStore, queueStore, playlistStore, userStore } from './stores'
+import { artistStore, albumStore, songStore, queueStore, playlistStore, userStore, folderStore } from './stores'
 import { playback } from './services'
 
 export default {
@@ -32,6 +32,11 @@ export default {
 
     '/artists' () {
       loadMainView('artists')
+    },
+
+    '/folders'() {
+      folderStore.init()
+      loadMainView('folders')
     },
 
     '/artist/(\\d+)' (id) {
