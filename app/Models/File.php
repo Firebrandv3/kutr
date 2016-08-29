@@ -211,6 +211,7 @@ class File
      * @return bool|Song A Song object on success,
      *                   true if file exists but is unmodified,
      *                   or false on an error.
+     * @throw \Exception If it can not access a cover file (permission errors) for example.
      */
     public function sync($tags, $force = false)
     {
