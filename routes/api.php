@@ -26,6 +26,7 @@ Route::group(['namespace' => 'API'], function () {
         });
 
         Route::get('data', 'DataController@index');
+        Route::get('hierarchy', 'FolderController@fullHierarchy');
 
         Route::post('settings', 'SettingController@store');
         Route::post('syncLibrary/{force?}', 'SyncController@sync');

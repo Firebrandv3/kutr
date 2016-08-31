@@ -378,4 +378,16 @@ class Song extends Model
     {
         return $this->id;
     }
+    
+     * Get the current song hierarchy sorted by path
+     *
+     * @param User user     The user to use for filtering
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function getHierarchy(User $user)
+    {
+        // @todo, filter by $user->id for library owning & sharing
+       return Song::orderBy('path')->get(array('id', 'path'))->makeVisible('path');
+    }
 }
