@@ -38,6 +38,8 @@ import { playback, ls, socket } from './services'
 import { focusDirective, clickawayDirective } from './directives'
 import router from './router'
 
+const USING_CMS = true;
+
 export default {
   components: { siteHeader, siteFooter, mainWrapper, overlay, loginForm, editSongsForm },
 
@@ -53,6 +55,11 @@ export default {
     if (token) {
       this.authenticated = true
       this.init()
+    } else if (USING_CMS) {
+        window.onbeforeunload = function() {}
+        // Because there is no token and ours is removed, this will trigger calling the remote logout URL redirection
+        window.location.replace('/loginRedir.php')
+        return
     }
 
     // Create the element to be the ghost drag image.
@@ -212,9 +219,11 @@ export default {
       async logout () {
         await userStore.logout()
         ls.remove('jwt-token')
-        window.onbeforeunload = function() {};
-        // Because there is no token and ours is removed, this will trigger calling the remote logout URL redirection
-        window.location.replace('/loginRedir.php');
+        if (USING_CMS) {
+          window.onbeforeunload = function() {};
+          // Because there is no token and ours is removed, this will trigger calling the remote logout URL redirection
+          window.location.replace('/loginRedir.php');
+        }
       },
 
       /**
