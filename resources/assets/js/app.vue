@@ -17,7 +17,7 @@
     </div>
 
     <div class="login-wrapper" v-else>
-      <login-form @loggedin="onUserLoggedIn"/>
+      <login-form @loggedin="onUserLoggedIn" v-show="showLogin" />
     </div>
   </div>
 </template>
@@ -38,6 +38,7 @@ import { playback, ls, socket } from './services'
 import { focusDirective, clickawayDirective } from './directives'
 import router from './router'
 
+// Change this to false if you are not using any CMS for login outside of the application
 const USING_CMS = true;
 
 export default {
@@ -45,6 +46,7 @@ export default {
 
   data () {
     return {
+      showLogin: !USING_CMS,
       authenticated: false
     }
   },
@@ -222,7 +224,7 @@ export default {
         if (USING_CMS) {
           window.onbeforeunload = function() {};
           // Because there is no token and ours is removed, this will trigger calling the remote logout URL redirection
-          window.location.replace('/loginRedir.php');
+          window.location.replace('/loginRedir.php?disconnect');
         }
       },
 
