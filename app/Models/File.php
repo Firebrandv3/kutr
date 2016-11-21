@@ -118,6 +118,7 @@ class File
 
         // Apparently track number can be stored with different indices as the following.
         $trackIndices = [
+            'tags.id3v2.track_number',
             'comments.track',
             'comments.tracknumber',
             'comments.track_number',
@@ -127,6 +128,38 @@ class File
             $track = array_get($info, $trackIndices[$i], [0])[0];
         }
 
+        $disc = null;
+        $discIndices = [
+            'tags.id3v2.part_of_a_set',
+            'comments.disc',
+            'comments.disc_number',
+            'comments.part_of_a_set',
+        ];
+
+        for ($i = 0; $i < count($discIndices) && $disc === null; $i++) {
+            $disc = array_get($info, $discIndices[$i], [null])[0];
+        }
+
+        $genre = null;
+        $genreIndices = [
+            'comments.genre',
+        ];
+
+        for ($i = 0; $i < count($genreIndices) && $genre === null; $i++) {
+            $genre = array_get($info, $genreIndices[$i], [null])[0];
+        }
+
+        $year = null;
+        $yearIndices = [
+            'tags.id3v2.year',
+            'comments.year',
+            'comments.creation_date',
+        ];
+
+        for ($i = 0; $i < count($yearIndices) && $year === null; $i++) {
+            $year = array_get($info, $yearIndices[$i], [null])[0];
+        }
+
         $props = [
             'artist' => '',
             'album' => '',
@@ -134,8 +167,10 @@ class File
             'title' => basename($this->path, '.'.pathinfo($this->path, PATHINFO_EXTENSION)), // default to be file name
             'length' => $info['playtime_seconds'],
             'track' => (int) $track,
-            'disc' => (int) array_get($info, 'comments.part_of_a_set.0', 1),
+            'disc' => $disc === null ? null : (int) $disc,
+            'genre' => $genre,
             'lyrics' => '',
+            'year' => $year === null ? null : ((int) $year > 1900 ?: ((int) $year % 100) + 1900), // Normalize year
             'cover' => array_get($info, 'comments.picture', [null])[0],
             'path' => $this->path,
             'mtime' => $this->mtime,
@@ -150,6 +185,7 @@ class File
             'albumartist' => 'band',
             'album' => 'album',
             'title' => 'title',
+            'genre' => 'genre',
             'lyrics' => 'unsychronised_lyric', // this tag name is misspelled
             'compilation' => 'part_of_a_compilation',
         ];
@@ -288,7 +324,7 @@ class File
             if (isset($info['album'])) {
                 $album = $changeCompilationAlbumOnly
                     ? $this->song->album
-                    : Album::get($artist, $info['album'], $isCompilation);
+                    : Album::get($artist, $info['album'], $info['year'], $isCompilation);
             } else {
                 $album = $this->song->album;
             }
@@ -306,12 +342,12 @@ class File
                 $isCompilation = $this->isLikelyCompilation($info, $artist);
             }
 
-            $album = Album::get($artist, $info['album'], $isCompilation);
+            $album = Album::get($artist, $info['album'], $info['year'], $isCompilation);
         }
 
         $album->has_cover || $this->generateAlbumCover($album, array_get($info, 'cover'));
 
-        $data = array_except($info, ['artist', 'albumartist', 'album', 'cover', 'compilation']);
+        $data = array_except($info, ['artist', 'albumartist', 'album', 'year', 'cover', 'compilation']);
         $data['album_id'] = $album->id;
         $data['artist_id'] = $artist->id;
         $this->song = Song::updateOrCreate(['id' => $this->hash], $data);

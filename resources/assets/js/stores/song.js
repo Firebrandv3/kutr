@@ -5,7 +5,7 @@ import isMobile from 'ismobilejs'
 
 import { secondsToHis, alerts, pluralize } from '@/utils'
 import { http, ls } from '@/services'
-import { sharedStore, favoriteStore, albumStore, artistStore, preferenceStore } from '.'
+import { sharedStore, favoriteStore, albumStore, artistStore, preferenceStore, genreStore } from '.'
 import stub from '@/stubs/song'
 
 export const songStore = {
@@ -38,6 +38,7 @@ export const songStore = {
     this.all = songs
     each(this.all, song => this.setupSong(song))
     this.state.recentlyPlayed = this.gatherRecentlyPlayedFromLocalStorage()
+    genreStore.init(this.all)
   },
 
   setupSong (song) {
@@ -45,17 +46,20 @@ export const songStore = {
 
     const album = albumStore.byId(song.album_id)
     const artist = artistStore.byId(song.artist_id)
+    const genre = genreStore.byId(song.genre_id)
 
     // Manually set these additional properties to be reactive
     Vue.set(song, 'playCount', song.playCount || 0)
     Vue.set(song, 'album', album)
     Vue.set(song, 'artist', artist)
+    Vue.set(song, 'genre', genre)
     Vue.set(song, 'liked', song.liked || false)
     Vue.set(song, 'lyrics', song.lyrics || null)
     Vue.set(song, 'playbackState', song.playbackState || 'stopped')
 
     artist.songs = unionBy(artist.songs || [], [song], 'id')
     album.songs = unionBy(album.songs || [], [song], 'id')
+    genre.songs = unionBy(genre.songs || [], [song], 'id')
 
     // now if the song is part of a compilation album, the album must be added
     // into its artist as well
@@ -88,6 +92,7 @@ export const songStore = {
       song.playCount = interaction.play_count
       song.album.playCount += song.playCount
       song.artist.playCount += song.playCount
+      song.genre.playCount += song.genreCount
 
       song.liked && favoriteStore.add(song)
     })
@@ -182,6 +187,7 @@ export const songStore = {
         song.playCount = data.play_count
         song.album.playCount += song.playCount - oldCount
         song.artist.playCount += song.playCount - oldCount
+        song.genre.playCount += song.playCount - oldCount
 
         resolve(data)
       }, error => reject(error))
@@ -228,10 +234,11 @@ export const songStore = {
       http.put('songs', {
         data,
         songs: map(songs, 'id')
-      }, ({ data: { songs, artists, albums }}) => {
+      }, ({ data: { songs, artists, albums, genres }}) => {
         // Add the artist and album into stores if they're new
         each(artists, artist => !artistStore.byId(artist.id) && artistStore.add(artist))
         each(albums, album => !albumStore.byId(album.id) && albumStore.add(album))
+        each(genres, genre => !genreStore.byId(genre.id) && genreStore.add(genre))
 
         each(songs, song => {
           const originalSong = this.byId(song.id)
@@ -244,6 +251,11 @@ export const songStore = {
           if (originalSong.artist_id !== song.artist_id) {
             // artist has been changed. Remove the song from its old artist
             originalSong.artist.songs = without(originalSong.artist.songs, originalSong)
+          }
+          
+          if (originalSong.genre_id !== song.genre_id) {
+            // genre has been changed. Remove the song from its old genre
+            originalSong.genre.songs = without(originalSong.genre.songs, originalSong)
           }
 
           assign(originalSong, song)
@@ -345,6 +357,9 @@ export const songStore = {
         },
         artist: {
           name: song.artist.name
+        },
+        genre: {
+          name: song.genre.name
         }
       }
     }

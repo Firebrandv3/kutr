@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Application;
+use App\Models\Genre;
 use App\Models\Interaction;
 use App\Models\Playlist;
 use App\Models\Setting;

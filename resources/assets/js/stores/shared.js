@@ -2,13 +2,14 @@ import { assign } from 'lodash'
 import isMobile from 'ismobilejs'
 
 import { http } from '@/services'
-import { userStore, preferenceStore, artistStore, albumStore, songStore, playlistStore, queueStore, settingStore, folderStore } from '.';
+import { userStore, preferenceStore, artistStore, albumStore, songStore, playlistStore, queueStore, settingStore, folderStore, genreStore } from '.';
 
 export const sharedStore = {
   state: {
     songs: [],
     albums: [],
     artists: [],
+    genres: [],
     favorites: [],
     queued: [],
     interactions: [],
@@ -27,6 +28,7 @@ export const sharedStore = {
   },
 
   init () {
+    folderStore.reset()
     return new Promise((resolve, reject) => {
       http.get('data', ({ data }) => {
         assign(this.state, data)
@@ -43,9 +45,11 @@ export const sharedStore = {
 
         userStore.init(this.state.users, this.state.currentUser)
         preferenceStore.init(this.state.preferences)
+        genreStore.init(this.state.genres)
         artistStore.init(this.state.artists)
         albumStore.init(this.state.albums)
         songStore.init(this.state.songs)
+
         songStore.initInteractions(this.state.interactions)
         playlistStore.init(this.state.playlists)
         queueStore.init()
@@ -57,10 +61,5 @@ export const sharedStore = {
         resolve(this.state)
       }, error => reject(error))
     })
-  },
-
-  reset () {
-    this.state = clone(emptyState)
-    folderStore.reset()
   }
 }

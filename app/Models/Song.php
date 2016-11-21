@@ -20,6 +20,7 @@ use YouTube;
  * @property string title
  * @property Album  album
  * @property Artist artist
+ * @property Genre  genre
  * @property string s3_params
  * @property float  length
  * @property string lyrics
@@ -92,6 +93,16 @@ class Song extends Model
     }
 
     /**
+     * A song belongs to a genre.
+     *
+     * @return BelongsTo
+     */
+    public function genre()
+    {
+        return $this->belongsTo(Genre::class);
+    }
+
+    /**
      * Scrobble the song using Last.fm service.
      *
      * @param User   $user
@@ -141,6 +152,9 @@ class Song extends Model
      *                    - artistName
      *                    - albumName
      *                    - lyrics
+     *                    - genre
+     *                    - disc
+     *                    - albumYear
      *                    All of these are optional, in which case the info will not be changed
      *                    (except for lyrics, which will be emptied).
      *
@@ -170,6 +184,9 @@ class Song extends Model
                 trim($data['artistName']) ?: $song->artist->name,
                 $single ? trim($data['lyrics']) : $song->lyrics,
                 $single ? (int) $data['track'] : $song->track,
+                intval($data['disc']) ?: $song->disc,
+                intval($data['albumYear']) ?: $song->album->year,
+                trim($data['genre']) ?: $song->genre,
                 (int) $data['compilationState']
             ));
         }
@@ -182,6 +199,7 @@ class Song extends Model
         return [
             'artists' => Artist::whereIn('id', $updatedSongs->pluck('artist_id'))->get(),
             'albums' => Album::whereIn('id', $updatedSongs->pluck('album_id'))->get(),
+            'genres' => Album::whereIn('id', $updatedSongs->pluck('genre_id'))->get(),
             'songs' => $updatedSongs,
         ];
     }
@@ -194,11 +212,14 @@ class Song extends Model
      * @param string $artistName
      * @param string $lyrics
      * @param int    $track
+     * @param int    $disc
+     * @param int    $year
+     * @param string $genre
      * @param int    $compilationState
      *
      * @return self
      */
-    public function updateSingle($title, $albumName, $artistName, $lyrics, $track, $compilationState)
+    public function updateSingle($title, $albumName, $artistName, $lyrics, $track, $disc, $year, $genre, $compilationState)
     {
         if ($artistName === Artist::VARIOUS_NAME) {
             // If the artist name is "Various Artists", it's a compilation song no matter what.
@@ -221,12 +242,14 @@ class Song extends Model
                 break;
         }
 
-        $album = Album::get($artist, $albumName, $isCompilation);
+        $album = Album::get($artist, $albumName, $year, $isCompilation);
 
         $this->artist_id = $artist->id;
         $this->album_id = $album->id;
+        $this->genre_id = Genre::get($genre);
         $this->title = $title;
         $this->lyrics = $lyrics;
+        $this->disc = $disc;
         $this->track = $track;
 
         $this->save();
@@ -378,7 +401,8 @@ class Song extends Model
     {
         return $this->id;
     }
-    
+
+    /**
      * Get the current song hierarchy sorted by path
      *
      * @param User user     The user to use for filtering

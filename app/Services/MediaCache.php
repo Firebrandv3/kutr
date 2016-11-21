@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Song;
+use App\Models\Genre;
 use Cache;
 
 class MediaCache
@@ -35,9 +36,17 @@ class MediaCache
      */
     private function query()
     {
+        //TODO move this in Model\Genre and not here!
+        $genres = Genre::orderBy('name')->with('songs')->get()->toArray();
+
+        // We don't need full song data either here, only ID's
+        foreach ($genres as &$genre) {
+            $genre['songs'] = array_pluck($genre['songs'], 'id');
+        }
         return [
             'albums' => Album::orderBy('name')->get(),
             'artists' => Artist::orderBy('name')->get(),
+            'genres' => $genres,
             'songs' => Song::all(),
         ];
     }
