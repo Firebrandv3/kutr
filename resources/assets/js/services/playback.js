@@ -431,5 +431,17 @@ export const playback = {
     shuffled
       ? this.queueAndPlay(songs, true)
       : this.queueAndPlay(orderBy(songs, ['disc', 'track']))
+  },
+
+  /**
+   * Play all songs by a genre.
+   *
+   * @param  {Object}     genre   The genre object
+   * @param  {Boolean=true}   shuffled Whether to shuffle the songs
+   */
+  playAllByGenre({ songs }, shuffled = true) {
+    shuffled
+      ? this.queueAndPlay(songs, true)
+      : this.queueAndPlay(orderBy(songs, 'artist_id', 'album_id', 'disc', 'track'))
   }
 }

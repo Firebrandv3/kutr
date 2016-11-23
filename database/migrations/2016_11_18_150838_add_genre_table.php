@@ -15,8 +15,15 @@ class AddGenreTable extends Migration
         Schema::create('genres', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->unique();
+            $table->string('image')->nullable();
             $table->timestamps();
         });
+
+        Genre::create([
+            'id' => Genre::UNKNOWN_ID,
+            'name' => Genre::UNKNOWN_NAME,
+            'image' => null,
+        ]);
     }
 
     /**
