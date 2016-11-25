@@ -29,6 +29,7 @@ use YouTube;
  * @property int    album_id
  * @property int    id
  * @property int    artist_id
+ * @property int    genre_id
  */
 class Song extends Model
 {
@@ -186,7 +187,7 @@ class Song extends Model
                 $single ? (int) $data['track'] : $song->track,
                 intval($data['disc']) ?: $song->disc,
                 intval($data['albumYear']) ?: $song->album->year,
-                trim($data['genre']) ?: $song->genre,
+                trim($data['genre']) ?: $song->genre->name,
                 (int) $data['compilationState']
             ));
         }
@@ -214,12 +215,12 @@ class Song extends Model
      * @param int    $track
      * @param int    $disc
      * @param int    $year
-     * @param string $genre
+     * @param string $genreName
      * @param int    $compilationState
      *
      * @return self
      */
-    public function updateSingle($title, $albumName, $artistName, $lyrics, $track, $disc, $year, $genre, $compilationState)
+    public function updateSingle($title, $albumName, $artistName, $lyrics, $track, $disc, $year, $genreName, $compilationState)
     {
         if ($artistName === Artist::VARIOUS_NAME) {
             // If the artist name is "Various Artists", it's a compilation song no matter what.

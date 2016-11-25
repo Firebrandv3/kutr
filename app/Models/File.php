@@ -347,9 +347,12 @@ class File
 
         $album->has_cover || $this->generateAlbumCover($album, array_get($info, 'cover'));
 
-        $data = array_except($info, ['artist', 'albumartist', 'album', 'year', 'cover', 'compilation']);
+        $data = array_except($info, ['artist', 'albumartist', 'album', 'year', 'cover', 'compilation', 'genre']);
         $data['album_id'] = $album->id;
         $data['artist_id'] = $artist->id;
+        if (isset($info['genre'])) {
+            $data['genre_id'] = Genre::get($info['genre'])->id;
+        }
         $this->song = Song::updateOrCreate(['id' => $this->hash], $data);
 
         return self::SYNC_RESULT_SUCCESS;

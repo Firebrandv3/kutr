@@ -33,6 +33,13 @@ $factory->define(App\Models\Album::class, function ($faker) {
     ];
 });
 
+$factory->define(App\Models\Genre::class, function ($faker) {
+    return [
+        'name' => $faker->name,
+        'image' => md5(uniqid()).'.jpg',
+    ];
+});
+
 $factory->define(App\Models\Song::class, function ($faker) {
     $album = factory(\App\Models\Album::class)->create();
 
@@ -43,7 +50,7 @@ $factory->define(App\Models\Song::class, function ($faker) {
         'length' => $faker->randomFloat(2, 10, 500),
         'track' => $faker->randomNumber(),
         'disc' => $faker->randomNumber(),
-        'genre' => $faker->text,
+        'genre_id' => random_int(1,2),
         'lyrics' => $faker->paragraph(),
         'path' => '/tmp/'.uniqid().'.mp3',
         'mtime' => time(),

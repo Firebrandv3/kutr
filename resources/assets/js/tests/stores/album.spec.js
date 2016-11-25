@@ -1,15 +1,17 @@
-import { albumStore, artistStore } from '../../stores'
+import { albumStore, artistStore, genreStore } from '../../stores'
 import data from '../blobs/data'
 
-const { artists, albums } = data
+const { artists, albums, genres } = data
 
 describe('stores/album', () => {
   beforeEach(() => {
+    genreStore.init(_.cloneDeep(genres))
     artistStore.init(_.cloneDeep(artists))
     albumStore.init(_.cloneDeep(albums))
   })
 
   afterEach(() => {
+    genreStore.state.genres = []
     artistStore.state.artists = []
     albumStore.state.albums = []
   })
