@@ -39,7 +39,7 @@ class MediaCache
         return [
             'albums' => Album::orderBy('name')->get(),
             'artists' => Artist::orderBy('name')->get(),
-            'genres' => Genre::orderBy('name')->get(),
+            'genres' => Genre::orderBy('name')->get()->map(function ($item, $key) { if (!strlen($item->image)) unset($item->image); return $item; }),
             'songs' => Song::all(),
         ];
     }
