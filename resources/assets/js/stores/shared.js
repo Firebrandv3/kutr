@@ -15,6 +15,7 @@ export const sharedStore = {
     interactions: [],
     users: [],
     settings: [],
+    songsSelection: [],
     currentUser: null,
     playlists: [],
     useLastfm: false,
