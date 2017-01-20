@@ -27,7 +27,7 @@
           </tr>
         </thead>
         <tbody>
-           <tr is="song-item" v-for="item in subSongs" :song="item" ref="rows" @itemClicked="itemClicked" :key="item.id"></tr>
+           <tr is="song-item-simple" v-for="item in subSongs" :song="item" ref="rows" @itemClicked="itemClicked" :key="item.id"></tr>
         </tbody>
       </table>
       <song-menu ref="contextMenu" :songs="songsSelection"/>
@@ -38,20 +38,19 @@
 <script>
 import { find, map, filter, forEach, invokeMap } from 'lodash'
 import isMobile from 'ismobilejs'
-import $ from 'jquery'
 import Vue from 'vue'
 
 import { pluralize, orderBy, event } from '../../utils'
 import { queueStore, artistStore, sharedStore, folderStore, songStore } from '../../stores'
 import { playback, download } from '../../services'
-import songItem from './song-item.vue'
+import songItemSimple from './song-item-simple.vue'
 import songMenu from './song-menu.vue'
 
 export default {
   name: 'folder-item',
   props: ['folder', 'level'],
   filters: { pluralize },
-  components: { songItem, songMenu },
+  components: { songItemSimple, songMenu },
 
   watch: {
     folder: function(val, oldVal) {
@@ -111,6 +110,18 @@ export default {
       if (this.isOpen) {
         Vue.nextTick(() => {
           // Scroll to ensure it's visible
+          var container = document.getElementById('foldersContainer')
+          var distance = e.target.offsetTop - container.offsetTop
+          if (Math.abs(distance) < container.innerHeight) {
+            // If the element is visible animate scrolling to it
+            var step = distance * 25 / 300, endCond = container.scrollTop + distance 
+            (function animateScroll() { container.scrollTop += step; if (container.scrollTop < endCond) setTimeout(animateScroll, 25) })()
+          } else {
+            // Element is not visible, so don't wait time animating, it's distracting, just fix the scrolling position so it fits directly on the toggled element
+            container.scrollTop = distance + container.scrollTop
+          }
+
+/*
           var $this = $(e.target)
           var container = $('#foldersContainer')
           var distance = $this.offset().top - container.offset().top
@@ -121,6 +132,7 @@ export default {
             // Element is not visible, so don't wait time animating, it's distracting, just fix the scrolling position so it fits directly on the toggled element
             container.scrollTop(distance + container.scrollTop())
           }
+*/
         });
       } else 
         this.close()
@@ -292,8 +304,9 @@ export default {
         e.dataTransfer.setData('application/x-koel.text+plain', songIds)
         e.dataTransfer.effectAllowed = 'move'
         // Set a fancy drop image using our ghost element.
-        const $ghost = $('#dragGhost').text(`${songIds.length} song${songIds.length === 1 ? '' : 's'}`)
-        e.dataTransfer.setDragImage($ghost[0], 0, 0)
+        const ghost = document.getElementById('dragGhost')
+        ghost.innerText = `${pluralize(songIds.length, 'song')}`
+        e.dataTransfer.setDragImage(ghost, 0, 0)
       })
     },
 
@@ -326,13 +339,13 @@ export default {
        */
       'song:played': song => {
         // Scroll the item into view if it's lost into oblivion.
-        const $wrapper = $(this.$refs.wrapper)
-        const $row = $wrapper.find(`.song-item[data-song-id="${song.id}"]`)
-        if (!$row.length) {
+        const row = this.$refs.wrapper.querySelector(`.song-item[data-song-id="${song.id}"]`)
+        if (!row) {
           return
         }
-        if ($wrapper[0].getBoundingClientRect().top + $wrapper[0].getBoundingClientRect().height < $row[0].getBoundingClientRect().top) {
-          $wrapper.scrollTop($wrapper.scrollTop() + $row.position().top)
+        const wrapperRec = this.$refs.wrapper.getBoundingClientRect()
+        if (wrapperRec.top + wrapperRec.height < row.getBoundingClientRect().top) {
+          this.$refs.wrapper.scrollTop = this.$refs.wrapper.scrollTop + row.offsetTop
         }
       },
 

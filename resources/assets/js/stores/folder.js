@@ -30,7 +30,7 @@ export const folderStore = {
   init() {
     if (this.state.loading) {
       new Promise((resolve, reject) => {
-        http.get('hierarchy', data => {
+        http.get('hierarchy', ({ data }) => {
           // Server side sets up all the file hierarchy for this request
           this.state.root = data;
           this.state.loading = false;

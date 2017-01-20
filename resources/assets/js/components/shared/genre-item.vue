@@ -29,7 +29,6 @@
 
 <script>
 import { map } from 'lodash';
-import $ from 'jquery';
 
 import { pluralize } from '../../utils';
 import { queueStore, sharedStore } from '../../stores';
@@ -77,8 +76,9 @@ export default {
       e.dataTransfer.effectAllowed = 'move';
 
       // Set a fancy drop image using our ghost element.
-      const $ghost = $('#dragGhost').text(`All ${songIds.length} song${songIds.length === 1 ? '' : 's'} in ${this.genre.name}`);
-      e.dataTransfer.setDragImage($ghost[0], 0, 0);
+      const ghost = document.getElementById('dragGhost')
+      ghost.innerText = `All ${pluralize(songIds.length, 'song')} in ${this.genre.name}`
+      e.dataTransfer.setDragImage(ghost, 0, 0)
     },
   },
 };
