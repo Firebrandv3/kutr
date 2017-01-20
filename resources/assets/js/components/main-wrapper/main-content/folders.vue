@@ -55,6 +55,24 @@ export default {
 
   created() {
     event.on({
+      /**
+       * Listen to song:played event to do some logic.
+       *
+       * @param  {Object} song The current playing song.
+       */
+      'song:played': song => {
+        // Scroll the item into view if it's lost into oblivion.
+        const container = document.getElementById('foldersContainer')
+        const row = container ? container.querySelector(`.song-item[data-song-id="${song.id}"]`) : undefined
+        if (!row) {
+          return
+        }
+        const wrapperRec = container.getBoundingClientRect()
+        if (wrapperRec.bottom < row.getBoundingClientRect().top) {
+          container.scrollTop += row.getBoundingClientRect().top - wrapperRec.top
+        }
+      },
+
       'koel:teardown': () => {
         this.q = ''
       },

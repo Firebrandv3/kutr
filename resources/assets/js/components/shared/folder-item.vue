@@ -15,7 +15,7 @@
     </div>
     <ul v-if="isFolder && isOpen">
       <folder-item v-for="dir in subFolders" :folder="dir" :level="level+1"></folder-item>
-      <table v-if="hasSongs">
+      <table v-if="hasSongs" ref="wrapper">
         <thead>
           <tr>
             <th class="track-number">#</th>
@@ -111,28 +111,15 @@ export default {
         Vue.nextTick(() => {
           // Scroll to ensure it's visible
           var container = document.getElementById('foldersContainer')
-          var distance = e.target.offsetTop - container.offsetTop
-          if (Math.abs(distance) < container.innerHeight) {
+          var distance = e.target.offsetTop - container.offsetTop - container.scrollTop
+          if (Math.abs(distance) < container.getBoundingClientRect().height) {
             // If the element is visible animate scrolling to it
-            var step = distance * 25 / 300, endCond = container.scrollTop + distance 
+            var step = distance * 25 / 300, endCond = container.scrollTop + distance;
             (function animateScroll() { container.scrollTop += step; if (container.scrollTop < endCond) setTimeout(animateScroll, 25) })()
           } else {
             // Element is not visible, so don't wait time animating, it's distracting, just fix the scrolling position so it fits directly on the toggled element
             container.scrollTop = distance + container.scrollTop
           }
-
-/*
-          var $this = $(e.target)
-          var container = $('#foldersContainer')
-          var distance = $this.offset().top - container.offset().top
-          if (Math.abs(distance) < container.height()) {
-            // If the element is visible animate scrolling to it
-            container.animate({ scrollTop: distance + container.scrollTop() })
-          } else {
-            // Element is not visible, so don't wait time animating, it's distracting, just fix the scrolling position so it fits directly on the toggled element
-            container.scrollTop(distance + container.scrollTop())
-          }
-*/
         });
       } else 
         this.close()
@@ -339,13 +326,14 @@ export default {
        */
       'song:played': song => {
         // Scroll the item into view if it's lost into oblivion.
-        const row = this.$refs.wrapper.querySelector(`.song-item[data-song-id="${song.id}"]`)
+        const row = this.$el.querySelector(`.song-item[data-song-id="${song.id}"]`)
         if (!row) {
           return
         }
-        const wrapperRec = this.$refs.wrapper.getBoundingClientRect()
-        if (wrapperRec.top + wrapperRec.height < row.getBoundingClientRect().top) {
-          this.$refs.wrapper.scrollTop = this.$refs.wrapper.scrollTop + row.offsetTop
+        const container = document.getElementById('foldersContainer')
+        const wrapperRec = container.getBoundingClientRect()
+        if (wrapperRec.bottom < row.getBoundingClientRect().top) {
+          container.scrollTop = row.offsetTop - container.offsetTop
         }
       },
 
