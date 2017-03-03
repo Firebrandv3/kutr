@@ -53,9 +53,9 @@ class FolderController extends Controller
      */
     public function mapForJSON($key, $value) {
         if (!is_array($value))
-            return array('name' => $key, 'songId' => $value, 'children' => array());
+            return array('name' => $key, 'song_id' => $value);
 
-        return array('name' => $key, 'songId' => 0, 'children' => array_map(array($this, __FUNCTION__), array_keys($value), $value));
+        return array('name' => $key, 'children' => array_map(array($this, __FUNCTION__), array_keys($value), $value));
     }
 
     /**
@@ -99,6 +99,6 @@ class FolderController extends Controller
         if (count($dir))
             $this->walkDown($out, $lastPath)['children'] = $dir;
 */
-        return response()->json(array('name'=>'Media Library', 'songId'=>0, 'children' => $out));
+        return response()->json(array('name'=>'Media Library', 'children' => $out));
     }
 }

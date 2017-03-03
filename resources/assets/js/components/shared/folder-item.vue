@@ -69,22 +69,22 @@ export default {
 
   computed: {
     isFolder() {
-      return this.folder.children.length !== 0
+      return this.folder.children != undefined && this.folder.children.length !== 0
     },
     
     hasSongs() {
-      return find(this.folder.children, o => { return o.songId !== 0 }) !== undefined
+      return find(this.folder.children, o => { return o.song_id != undefined && o.song_id !== 0 }) !== undefined
     },
 
     subSongs() {
-      return map(filter(this.folder.children, o => { return o.songId !== 0 }), o => songStore.byId(o.songId))
+      return map(filter(this.folder.children, o => { return o.song_id != undefined && o.song_id !== 0 }), o => songStore.byId(o.song_id))
     },
 
     subSongsRecursive() {
       // Unfold the recursive array first (@todo make a nicer function here)
       var children = []
       function unfold(o) {
-          forEach(o.children, i => { if (i.songId === 0) return unfold(i); children.push(songStore.byId(i.songId)) })
+          forEach(o.children, i => { if (i.song_id == undefined || i.song_id === 0) return unfold(i); children.push(songStore.byId(i.song_id)) })
       }
       unfold(this.folder)
       return children
@@ -92,7 +92,7 @@ export default {
 
 
     subFolders() {
-      return filter(this.folder.children, o => { return o.songId === 0; })
+      return filter(this.folder.children, o => { return o.song_id == undefined || o.song_id === 0; })
     },
   },
 
