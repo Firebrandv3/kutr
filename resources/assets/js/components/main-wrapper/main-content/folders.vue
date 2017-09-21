@@ -17,7 +17,7 @@
     <div v-else class="folders" id="foldersContainer">
       <ul><folder-item :folder="sharedState.root" :level="0"></ul>
 
-      <to-top-button :showing="showBackToTop"></to-top-button>
+      <to-top-button/>
     </div>
   </section>
 </template>
@@ -94,7 +94,7 @@ export default {
 }
 </script>
 
-<style lang="sass">
+<style lang="scss">
 @import "../../../../sass/partials/_vars.scss";
 @import "../../../../sass/partials/_mixins.scss";
 

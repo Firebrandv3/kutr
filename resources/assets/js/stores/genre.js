@@ -1,3 +1,5 @@
+/*eslint camelcase: ["error", {properties: "never"}]*/
+
 import Vue from 'vue';
 import { reduce, each, find, union, difference, take, filter, orderBy, pluck } from 'lodash';
 
@@ -8,9 +10,10 @@ const UNKNOWN_GENRE_ID = 1;
 
 export const genreStore = {
   stub,
+  cache: [],
 
   state: {
-    genres: [stub],
+    genres: [],
   },
 
   /**
@@ -20,9 +23,9 @@ export const genreStore = {
    */
   init(genres) {
     this.all = genres;
-    each(genres, genre => {
-        this.setupGenre(genre);
-    });
+
+    // Traverse through genre array to get the cover and number of songs for each.
+    each(this.all, genre => this.setupGenre(genre))
   },
 
   /**
@@ -31,13 +34,13 @@ export const genreStore = {
    * @param  {Object} genre
    */
   setupGenre(genre) {
-    Vue.set(genre, 'playCount', 0);
-    // Will be filled later on by while the song store is initializing
-    genre.songs = genre.songs ? genre.songs : [];
-    Vue.set(genre, 'songCount', genre.songs.length);
+    Vue.set(genre, 'playCount', 0)
+    Vue.set(genre, 'songs', [])
     if (!genre.image) genre.image = config.unknownCover;
 
-    return genre;
+    this.cache[genre.id] = genre
+
+    return genre
   },
 
   /**
@@ -46,7 +49,7 @@ export const genreStore = {
    * @return {Array.<Object>}
    */
   get all() {
-    return this.state.genres;
+    return this.state.genres
   },
 
   /**
@@ -55,7 +58,7 @@ export const genreStore = {
    * @param  {Array.<Object>} value
    */
   set all(value) {
-    this.state.genres = value;
+    this.state.genres = value
   },
 
   /**
@@ -64,7 +67,7 @@ export const genreStore = {
    * @param  {Number} id
    */
   byId(id) {
-    return find(this.all, { id });
+    return this.cache[id]
   },
 
   /**
@@ -74,49 +77,45 @@ export const genreStore = {
    */
   add(genres) {
     genres = [].concat(genres);
-    each(genres, a => this.setupGenre(a));
+    each(genres, genre => {
+      this.setupGenre(genre)
+      genre.playCount = reduce(genre.songs, (count, song) => count + song.playCount, 0)
+    })
 
     this.all = union(this.all, genres);
   },
 
-  /**
-   * Remove genre(s) from the store.
-   *
-   * @param  {Array.<Object>|Object} genres
-   */
-  remove(genres) {
-    this.all = difference(this.all, [].concat(genres));
+  purify () {
+    this.compact()
   },
 
   /**
-   * Add song(s) into a genre.
-   *
-   * @param {Object} genre
-   * @param {Array.<Object>|Object} songs
-   *
+   * Remove empty genres from the store.
    */
-  addSongsIntoGenre(genre, songs) {
-    songs = [].concat(songs);
+  compact () {
+    const emptyGenres = filter(this.all, genre => genre.songs.length === 0)
+    if (!emptyGenres.length)
+      return
+    
 
-    genre.songs = union(genre.songs ? genre.songs : [], songs);
-
-    each(songs, song => {
-      song.genre_id = genre.id;
-      song.genre = genre;
-      genre.playCount += song.playCount;
-    });
+    this.all = difference(this.all, emptyGenres)
+    each(emptyGenres, genre => delete this.cache[genre.id])
   },
 
   /**
-   * Remove song(s) from a genre.
+   * Get top n most-played genres.
    *
-   * @param  {Object} genre
-   * @param  {Array.<Object>|Object} songs
+   * @param  {Number} n
+   *
+   * @return {Array.<Object>}
    */
-  removeSongsFromGenre(genre, songs) {
-    songs = [].concat(songs);
-    genre.songs = difference(genre.songs, songs);
-    each(songs, song => genre.playCount -= song.playCount);
+  getMostPlayed (n = 6) {
+    // Only non-unknown genres with actually play count are applicable.
+    const applicable = filter(this.all, genre => {
+      return genre.playCount && !this.isUnknownGenre(genre)
+    })
+
+    return take(orderBy(applicable, 'playCount', 'desc'), n)
   },
 
   /**
@@ -150,23 +149,6 @@ export const genreStore = {
    */
   getSongsByGenre(genre) {
     return genre.songs;
-  },
-
-  /**
-   * Get top n most-played genres.
-   *
-   * @param  {Number} n
-   *
-   * @return {Array.<Object>}
-   */
-  getMostPlayed(n = 6) {
-    // Only non-unknown artists with actually play count are applicable.
-    // Also, "Various Artists" doesn't count.
-    const applicable = filter(this.all, genre => {
-      return genre.playCount
-        && !this.isUnknownGenre(genre);
-    });
-
-    return take(orderBy(applicable, 'playCount', 'desc'), n);
-  },
+  }
+  
 };

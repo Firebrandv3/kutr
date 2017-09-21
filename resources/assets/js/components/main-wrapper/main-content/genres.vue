@@ -5,10 +5,10 @@
       <view-mode-switch :mode="viewMode" for="genres"/>
     </h1>
 
-    <div class="genres main-scroll-wrap" :class="'as-'+viewMode" @scroll="scrolling">
+    <div ref="scroller" class="genres main-scroll-wrap" :class="'as-'+viewMode" @scroll="scrolling">
       <genre-item v-for="item in displayedItems" :genre="item"/>
       <span class="item filler" v-for="n in 6"/>
-      <to-top-button :showing="showBackToTop"/>
+      <to-top-button/>
     </div>
   </section>
 </template>
@@ -66,7 +66,7 @@ export default {
 };
 </script>
 
-<style lang="sass">
+<style lang="scss" scoped>
 @import "../../../../sass/partials/_vars.scss";
 @import "../../../../sass/partials/_mixins.scss";
 

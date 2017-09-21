@@ -28,7 +28,7 @@
 
       <div class="form-row">
         <button type="submit">Save settings</button>
-        <button type="button" @click="scanLibrary" v-bind:class="{forced: isForced}" >Scan library {{forceSyncTxt}}</button>
+        <button type="button" @click="scanLibrary" :class="{forced: isForced}" >Scan library {{forceSyncTxt}}</button>
       </div>
     </form>
     <sync-update ref="syncUpdate"></sync-update>
@@ -58,7 +58,7 @@ export default {
     /**
      * Check if the synchronization requires cleaning the library first
      *
-     * @return {boolean}
+     * @return {boolean} */
     isForced() { 
       return this.forceSyncTxt != ''; 
     },

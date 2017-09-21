@@ -27,6 +27,8 @@ mix.js('resources/assets/js/app.js', 'public/js')
   .js('resources/assets/js/remote/app.js', 'public/js/remote')
   .sass('resources/assets/sass/remote.scss', 'public/css')
 
+//mix.styles(['resources/assets/css/font.css'], 'public/css/all.css');
+
 if (mix.config.inProduction) {
   mix.version()
   mix.disableNotifications()
