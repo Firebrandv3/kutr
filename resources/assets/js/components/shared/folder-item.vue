@@ -112,10 +112,14 @@ export default {
           // Scroll to ensure it's visible
           var container = document.getElementById('foldersContainer')
           var distance = e.target.offsetTop - container.offsetTop - container.scrollTop
-          if (Math.abs(distance) < container.getBoundingClientRect().height) {
+          if (distance > 0 && distance < container.getBoundingClientRect().height) {
             // If the element is visible animate scrolling to it
             var step = distance * 25 / 300, endCond = container.scrollTop + distance;
-            (function animateScroll() { container.scrollTop += step; if (container.scrollTop < endCond) setTimeout(animateScroll, 25) })()
+            (function animateScroll() { 
+              container.scrollTop += step; 
+              if (container.scrollTop < endCond - step) setTimeout(animateScroll, 25)
+              else container.scrollTop = endCond
+            })()
           } else {
             // Element is not visible, so don't wait time animating, it's distracting, just fix the scrolling position so it fits directly on the toggled element
             container.scrollTop = distance + container.scrollTop
