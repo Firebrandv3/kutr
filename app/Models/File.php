@@ -226,11 +226,11 @@ class File
 
         $albumFromName = Album::getFromName($info['album']);
 
-        if ($albumFromName !== null && $albumFromName->is_compilation !== 1 &&  $albumFromName->artist_id != $artist->id
+        if ($albumFromName !== null && $albumFromName->artist_id !== Artist::VARIOUS_ID &&  $albumFromName->artist_id != $artist->id
             && Song::scopeInDirectory(Song::where('album_id', $albumFromName->id), pathinfo($this->path, PATHINFO_DIRNAME))->first() !== null) {
             // It seems the compilation flag should be set
             // Also update the previous album's artist to various artist
-            $albumFromName->update(['is_compilation' => '1', 'artist_id' => Artist::VARIOUS_ID]);
+            $albumFromName->update(['artist_id' => Artist::VARIOUS_ID]);
 
             return true;
         }
