@@ -13,7 +13,7 @@
         <span class="left">
           {{ genre.songs.length | pluralize('song') }}
           •
-          {{ genre.fmtLength }}
+          {{ fmtLength }}
           •
           {{ genre.playCount | pluralize('play') }}
         </span>
@@ -33,9 +33,12 @@ import { map } from 'lodash';
 import { pluralize } from '../../utils';
 import { queueStore, sharedStore } from '../../stores';
 import { playback, download } from '../../services';
+import hasSongList from '@/mixins/has-song-list'
+import genreAttributes from '@/mixins/genre-attributes'
 
 export default {
   name: 'shared--genre-item',
+  mixins: [hasSongList, genreAttributes],
   props: ['genre'],
   filters: { pluralize },
 

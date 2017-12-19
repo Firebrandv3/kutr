@@ -15,7 +15,7 @@
 
     <sound-bar v-if="loading" class="sbcenter"></sound-bar>
     <div v-else class="folders" id="foldersContainer">
-      <ul><folder-item :folder="sharedState.root" :level="0"></ul>
+      <ul><folder-item :folder="sharedState.root" :level="0"/></ul>
 
       <to-top-button/>
     </div>

@@ -36,6 +36,7 @@ export const genreStore = {
   setupGenre(genre) {
     Vue.set(genre, 'playCount', 0)
     Vue.set(genre, 'songs', [])
+    Vue.set(genre, 'fmtLength', 0)
     if (!genre.image) genre.image = config.unknownCover;
 
     this.cache[genre.id] = genre
@@ -75,7 +76,7 @@ export const genreStore = {
    *
    * @param  {Array.<Object>|Object} genres
    */
-  add(genres) {
+  add (genres) {
     genres = [].concat(genres);
     each(genres, genre => {
       this.setupGenre(genre)

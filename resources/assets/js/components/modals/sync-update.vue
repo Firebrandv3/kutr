@@ -7,8 +7,8 @@
         <p v-html="syncData.lastSong"></p>
         <ol class="error" v-show="showErrors"><li v-for="song in failedSongs">{{song}}</li></ol>
       </div>
-      <button type="button" @click.prevent="stopSync">{{buttonText}}</a>
-    <div>
+      <button type="button" @click.prevent="stopSync">{{buttonText}}</button>
+    </div>
   </div>
 </template>
 

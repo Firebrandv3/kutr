@@ -6,7 +6,7 @@
     </h1>
 
     <div ref="scroller" class="genres main-scroll-wrap" :class="'as-'+viewMode" @scroll="scrolling">
-      <genre-item v-for="item in displayedItems" :genre="item"/>
+      <genre-item v-for="item in displayedItems" :genre="item" :key="item.id"/>
       <span class="item filler" v-for="n in 6"/>
       <to-top-button/>
     </div>
@@ -29,7 +29,7 @@ export default {
       perPage: 9,
       numOfItems: 9,
       q: '',
-      viewMode: null,
+      viewMode: 'list',
     };
   },
 

@@ -165,17 +165,17 @@ class Media
             try {
                 $song = $file->sync($this->tags, false);
             } catch(\Exception $e) {
-                $song = false;
+                $song = File::SYNC_RESULT_UNMODIFIED;
                 $file->setSyncError($e->getMessage());
             }
 
-            if ($song === true) {
+            if ($song === File::SYNC_RESULT_UNMODIFIED) {
                 $results['nochange'] = $results['nochange'] + 1;
-            } elseif ($song === false) {
+            } elseif ($song === File::SYNC_RESULT_BAD_FILE) {
                 $results['bad'][] = $file->getPath().' : '. $file->getSyncError();
             } else {
                 $results['change'] = $results['change'] + 1;
-                $results['lastSong'] = $song->title . ' <em>by</em> ' . $song->getArtistAttribute()->name;
+                $results['lastSong'] = $file->song->title . ' <em>by</em> ' . $file->song->getArtistAttribute()->name;
             }
             if ($amount !== 0 && $results['change'] > $amount) {
                 break;

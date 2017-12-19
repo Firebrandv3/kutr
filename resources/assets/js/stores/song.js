@@ -91,7 +91,7 @@ export const songStore = {
       song.playCount = interaction.play_count
       song.album.playCount += song.playCount
       song.artist.playCount += song.playCount
-      song.genre.playCount += song.genreCount
+      song.genre.playCount += song.playCount
 
       song.liked && favoriteStore.add(song)
     })

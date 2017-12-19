@@ -14,7 +14,7 @@
       </span>
     </div>
     <ul v-if="isFolder && isOpen">
-      <folder-item v-for="dir in subFolders" :folder="dir" :level="level+1"></folder-item>
+      <folder-item v-for="dir in subFolders" :folder="dir" :level="level+1" :key="dir.song_id"></folder-item>
       <table v-if="hasSongs" ref="wrapper">
         <thead>
           <tr>
