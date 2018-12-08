@@ -175,7 +175,8 @@ class Media
                 $results['bad'][] = $file->getPath().' : '. $file->getSyncError();
             } else {
                 $results['change'] = $results['change'] + 1;
-                $results['lastSong'] = $file->song->title . ' <em>by</em> ' . $file->song->getArtistAttribute()->name;
+                $info = $file->getSummary();
+                $results['lastSong'] = $info[0] . ' <em>by</em> ' . $info[1];
             }
             if ($amount !== 0 && $results['change'] > $amount) {
                 break;

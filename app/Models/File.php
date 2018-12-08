@@ -139,6 +139,7 @@ class File
         for ($i = 0; $i < count($discIndices) && $disc === null; $i++) {
             $disc = array_get($info, $discIndices[$i], [null])[0];
         }
+        if ($disc === null) $disc = 1;
 
         $genre = null;
         $genreIndices = [
@@ -501,5 +502,14 @@ class File
     public static function getHash($path)
     {
         return md5(config('app.key').$path);
+    }
+    
+    /** Get a summary for the song pointed by this file 
+     *
+     * @return array[title, artist]
+     */
+    public function getSummary()
+    {
+        return [$song->title, $song->artist->name];
     }
 }
